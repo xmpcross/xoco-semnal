@@ -1,0 +1,44 @@
+---
+import PostCard from "@/components/PostCard.astro";
+import SectionHeader from "@/components/SectionHeader.astro";
+import type { Category, Post } from "@/lib/posts";
+
+interface Props {
+  title: string;
+  category: Category;
+  posts: Post[];
+  layout?: "feature" | "grid" | "rail";
+  count?: number;
+}
+
+const { title, category, posts, layout = "grid", count } = Astro.props;
+const [lead, ...rest] = posts;
+---
+
+<section class="mx-auto max-w-7xl px-5 pt-20 sm:px-6 lg:px-10">
+  <SectionHeader title={title} category={category} count={count} />
+  {
+    layout === "feature" && lead ? (
+      <div class="grid-cards grid gap-x-8 gap-y-8 lg:grid-cols-[1.15fr_0.85fr]">
+        <PostCard post={lead} variant="lead" />
+        <div class="lg:border-l lg:border-border lg:pl-8">
+          {rest.map((post) => (
+            <PostCard post={post} variant="horizontal" />
+          ))}
+        </div>
+      </div>
+    ) : layout === "rail" ? (
+      <div class="grid-cards col-rules-2-4 grid gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-4">
+        {posts.map((post) => (
+          <PostCard post={post} />
+        ))}
+      </div>
+    ) : (
+      <div class="grid-cards col-rules-3 grid gap-x-8 gap-y-10 md:grid-cols-3">
+        {posts.map((post) => (
+          <PostCard post={post} />
+        ))}
+      </div>
+    )
+  }
+</section>

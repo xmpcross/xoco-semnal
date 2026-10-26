@@ -1,0 +1,48 @@
+---
+import { getCollection } from "astro:content";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import { visiblePosts } from "@/lib/posts";
+
+const allPosts = visiblePosts(await getCollection("posts"));
+---
+
+<BaseLayout
+  title="About"
+  description={`Learn about ${siteConfig.name}, the editorial voice, and the technology coverage readers can expect.`}
+>
+  <SiteHeader posts={allPosts} />
+  <main id="content" class="min-h-screen">
+    <section class="mx-auto max-w-4xl px-6 pt-12 lg:px-10">
+      <p class="eyebrow text-primary">Masthead</p>
+      <h1 class="mt-3 font-display text-5xl leading-[0.95] font-extrabold md:text-7xl">
+        {siteConfig.name}
+      </h1>
+      <p class="mt-6 max-w-2xl text-pretty text-xl text-muted-foreground">
+        {siteConfig.description}
+      </p>
+    </section>
+
+    <section class="mx-auto grid max-w-4xl gap-10 px-6 pt-14 lg:px-10">
+      <div class="border-t border-border pt-8">
+        <h2 class="font-display text-3xl font-bold tracking-tight">Editorial Direction</h2>
+        <p class="mt-4 text-pretty leading-7 text-muted-foreground">
+          {siteConfig.name} tracks the forces reshaping technology, capital, energy, science, and global
+          business. The theme is designed for concise reporting, useful context, and a homepage that can
+          carry a busy daily news cycle.
+        </p>
+      </div>
+
+      <div class="border-t border-border pt-8">
+        <h2 class="font-display text-3xl font-bold tracking-tight">Editorial Standards</h2>
+        <p class="mt-4 text-pretty leading-7 text-muted-foreground">
+          Stories should be timely, clearly credited, and useful to readers who want the signal
+          without refreshing every dashboard, demo day, and regulatory filing.
+        </p>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>

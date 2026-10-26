@@ -1,0 +1,40 @@
+---
+import { categoryDescriptions, categorySlug, type Category } from "@/lib/posts";
+
+interface Props {
+  title: string;
+  category: Category;
+  count?: number;
+}
+
+const { title, category, count } = Astro.props;
+const slug = categorySlug(category);
+const standfirst = categoryDescriptions[category];
+---
+
+<div id={slug} class="mb-7 scroll-mt-32">
+  <div class="section-rule rule-top"></div>
+  <div class="mt-4 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+    <div class="max-w-xl">
+      <h2 class="font-display text-3xl leading-[0.98] font-extrabold text-balance md:text-[2.6rem]">
+        {title}
+      </h2>
+      <p class="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">{standfirst}</p>
+    </div>
+    <div class="flex items-center gap-4">
+      {
+        typeof count === "number" && (
+          <span class="eyebrow hidden text-muted-foreground sm:inline">
+            {String(count).padStart(2, "0")} stories
+          </span>
+        )
+      }
+      <a
+        href={`/category/${slug}/`}
+        class="button-quiet inline-flex min-h-9 items-center px-3.5 font-mono text-[10px] font-semibold tracking-[0.22em] uppercase"
+      >
+        See all
+      </a>
+    </div>
+  </div>
+</div>

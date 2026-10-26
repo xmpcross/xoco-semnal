@@ -1,0 +1,28 @@
+---
+import PostCard from "@/components/PostCard.astro";
+import type { Post } from "@/lib/posts";
+
+interface Props {
+  posts: Post[];
+  title?: string;
+  eagerCount?: number;
+}
+
+const { posts, title = "Latest", eagerCount = 0 } = Astro.props;
+---
+
+<aside aria-labelledby="latest-news-heading">
+  <div class="rule-top pt-3">
+    <div class="mb-1 flex items-baseline justify-between gap-4">
+      <h2 id="latest-news-heading" class="font-display text-xl font-extrabold">
+        {title}
+      </h2>
+      <span class="eyebrow text-primary animate-pulse-dot">Live</span>
+    </div>
+    {
+      posts.map((post, index) => (
+        <PostCard post={post} variant="horizontal" eager={index < eagerCount} />
+      ))
+    }
+  </div>
+</aside>

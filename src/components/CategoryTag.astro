@@ -1,0 +1,22 @@
+---
+import { categoryAccent, type Category } from "@/lib/posts";
+
+interface Props {
+  category: Category;
+  size?: "sm" | "md";
+  tone?: "default" | "onImage";
+}
+
+const { category, size = "sm", tone = "default" } = Astro.props;
+const accent = categoryAccent[category];
+---
+
+<span
+  class:list={[
+    "category-chip",
+    tone === "onImage" ? "category-chip-on-image" : accent,
+    size === "md" ? "text-[11px]" : "text-[10px]",
+  ]}
+>
+  {category}
+</span>

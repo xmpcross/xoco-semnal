@@ -1,0 +1,55 @@
+---
+import { getCollection } from "astro:content";
+import NewsletterSignup from "@/components/NewsletterSignup.astro";
+import PostCard from "@/components/PostCard.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import { getAllTags, tagSlug, visiblePosts, type Post } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  const allPosts = visiblePosts(await getCollection("posts"));
+  return getAllTags(allPosts).map((tag) => ({
+    params: { tag: tagSlug(tag) },
+    props: { tag, allPosts },
+  }));
+}
+
+interface Props {
+  tag: string;
+  allPosts: Post[];
+}
+
+const { tag, allPosts } = Astro.props;
+const posts = visiblePosts(allPosts).filter((post) =>
+  post.data.tags.some((item) => tagSlug(item) === tagSlug(tag)),
+);
+const title = `${tag} stories`;
+const description = `Stories tagged ${tag} on ${siteConfig.name}.`;
+const countLabel = `${posts.length} ${posts.length === 1 ? "story" : "stories"} tagged ${tag}.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <SiteHeader posts={allPosts} />
+  <main id="content" class="min-h-screen">
+    <section class="mx-auto max-w-7xl px-6 pt-12 lg:px-10">
+      <div class="opener rule-top border-b border-border pt-4 pb-7">
+        <p class="eyebrow text-primary">Tag</p>
+        <h1 class="mt-2 font-display text-5xl leading-[0.95] font-extrabold md:text-6xl">{tag}</h1>
+        <p class="mt-4 max-w-2xl text-muted-foreground">{countLabel}</p>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 pt-10 lg:px-10">
+      <div class="grid-cards col-rules-3 grid gap-x-8 gap-y-10 md:grid-cols-3">
+        {posts.map((post, index) => <PostCard post={post} eager={index < 6} />)}
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 pt-24 lg:px-10">
+      <NewsletterSignup />
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>

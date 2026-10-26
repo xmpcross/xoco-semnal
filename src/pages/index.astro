@@ -1,0 +1,205 @@
+---
+import { getCollection } from "astro:content";
+import CategorySection from "@/components/CategorySection.astro";
+import LatestNewsList from "@/components/LatestNewsList.astro";
+import NewsletterSignup from "@/components/NewsletterSignup.astro";
+import PopularStories from "@/components/PopularStories.astro";
+import PostCard from "@/components/PostCard.astro";
+import PromoBanner from "@/components/PromoBanner.astro";
+import SectionIndex from "@/components/SectionIndex.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import {
+  categories,
+  categorySlug,
+  getAllTags,
+  tagSlug,
+  type Category,
+  visiblePosts,
+} from "@/lib/posts";
+
+const allPosts = visiblePosts(await getCollection("posts"));
+const used = new Set<string>();
+const take = (source: typeof allPosts, count: number) => {
+  const picked = [];
+  for (const post of source) {
+    if (picked.length >= count) break;
+    if (used.has(post.id)) continue;
+    used.add(post.id);
+    picked.push(post);
+  }
+  return picked;
+};
+const takeCategory = (category: Category, count: number) =>
+  allPosts.filter((post) => post.data.category === category).slice(0, count);
+const countCategory = (category: Category) =>
+  allPosts.filter((post) => post.data.category === category).length;
+
+const hero = take(allPosts, 1)[0];
+const popular = take(
+  allPosts.filter((post) => post.data.trending),
+  6,
+);
+const latest = take(allPosts, 5);
+const secondary = take(allPosts, 4);
+
+const sectionPlan = [
+  { title: "Global Dispatch", category: "Global Dispatch", layout: "feature", count: 5 },
+  { title: "AI Frontier", category: "AI Frontier", layout: "grid", count: 6 },
+  { title: "Market Pulse", category: "Market Pulse", layout: "grid", count: 6 },
+  { title: "EV Shift", category: "EV Shift", layout: "rail", count: 4 },
+  { title: "Science Lab", category: "Science Lab", layout: "feature", count: 5 },
+  { title: "Startup Watch", category: "Startup Watch", layout: "grid", count: 6 },
+] as const;
+
+const sections = sectionPlan.map((section) => ({
+  ...section,
+  posts: takeCategory(section.category, section.count),
+  total: countCategory(section.category),
+}));
+
+const remaining = take(allPosts, 8);
+// The rail is a taster, not a tag index. Capped so adding tags to the site
+// never grows this block past the column it sits in; /all-news/ carries the rest.
+const topicLimit = 14;
+const topics = getAllTags(allPosts).slice(0, topicLimit);
+---
+
+<BaseLayout>
+  <SiteHeader posts={allPosts} />
+  <main id="content" class="min-h-screen">
+    <h1 class="sr-only">{siteConfig.name} - Technology, startups, AI, markets, EVs, and science</h1>
+
+    <section class="mx-auto max-w-7xl px-5 pt-8 sm:px-6 lg:px-10">
+      <div class="grid gap-x-8 gap-y-12 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div class="opener space-y-10">
+          {hero && <PostCard post={hero} variant="hero" eager />}
+          <div class="col-rules-2 grid gap-x-8 gap-y-10 md:grid-cols-2">
+            {secondary.map((post, index) => <PostCard post={post} eager={index < 2} />)}
+          </div>
+        </div>
+        <div class="opener space-y-10 lg:border-l lg:border-border lg:pl-8">
+          <LatestNewsList posts={latest} eagerCount={5} />
+          <PromoBanner />
+          <nav class="rule-top pt-3" aria-labelledby="home-topics-heading">
+            <p id="home-topics-heading" class="eyebrow text-muted-foreground">Topics in play</p>
+            <ul class="mt-4 flex flex-wrap gap-2">
+              {
+                topics.map((topic) => (
+                  <li>
+                    <a
+                      href={`/tag/${tagSlug(topic)}/`}
+                      class="button-quiet inline-flex min-h-8 items-center px-2.5 font-mono text-[10px] tracking-[0.16em] uppercase"
+                    >
+                      {topic}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    {
+      popular.length > 0 && (
+        <div class="reveal pt-20">
+          <PopularStories posts={popular} />
+        </div>
+      )
+    }
+
+    {
+      sections
+        .slice(0, 1)
+        .map((section) => (
+          <CategorySection
+            title={section.title}
+            category={section.category}
+            posts={section.posts}
+            layout={section.layout}
+            count={section.total}
+          />
+        ))
+    }
+
+    <div class="reveal pt-20">
+      <SectionIndex posts={allPosts} />
+    </div>
+
+    {
+      sections
+        .slice(1, 3)
+        .map((section) => (
+          <CategorySection
+            title={section.title}
+            category={section.category}
+            posts={section.posts}
+            layout={section.layout}
+            count={section.total}
+          />
+        ))
+    }
+
+    <section class="reveal mt-24">
+      <NewsletterSignup />
+    </section>
+
+    {
+      sections
+        .slice(3)
+        .map((section) => (
+          <CategorySection
+            title={section.title}
+            category={section.category}
+            posts={section.posts}
+            layout={section.layout}
+            count={section.total}
+          />
+        ))
+    }
+
+    {
+      remaining.length > 0 && (
+        <section class="mx-auto max-w-7xl px-5 pt-20 sm:px-6 lg:px-10">
+          <div class="section-rule rule-top" />
+          <div class="mt-4 mb-7 flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+            <div class="max-w-xl">
+              <h2 class="font-display text-3xl leading-[0.98] font-extrabold md:text-[2.6rem]">
+                More from the newsroom
+              </h2>
+              <p class="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
+                Everything else the desks filed, newest first.
+              </p>
+            </div>
+            <a
+              href="/all-news/"
+              class="button-quiet inline-flex min-h-9 items-center px-3.5 font-mono text-[10px] font-semibold tracking-[0.22em] uppercase"
+            >
+              All news
+            </a>
+          </div>
+          <div class="mb-9 flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <a
+                href={`/category/${categorySlug(category)}/`}
+                class="button-quiet inline-flex min-h-8 items-center px-3 font-mono text-[10px] tracking-[0.18em] uppercase"
+              >
+                {category}
+              </a>
+            ))}
+          </div>
+          <div class="grid-cards col-rules-2-4 grid gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-4">
+            {remaining.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </main>
+  <SiteFooter />
+</BaseLayout>

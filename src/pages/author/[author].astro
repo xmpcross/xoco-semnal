@@ -1,0 +1,102 @@
+---
+import { getCollection } from "astro:content";
+import PostCard from "@/components/PostCard.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import {
+  authorHref,
+  getAuthorBySlug,
+  getAuthors,
+  visiblePosts,
+  type AuthorArchive,
+  type Post,
+} from "@/lib/posts";
+
+export async function getStaticPaths() {
+  const allPosts = visiblePosts(await getCollection("posts"));
+  return getAuthors(allPosts).map((author) => ({
+    params: { author: author.slug },
+    props: { author, allPosts },
+  }));
+}
+
+interface Props {
+  author: AuthorArchive;
+  allPosts: Post[];
+}
+
+const { author: authorFromProps, allPosts } = Astro.props;
+const author = getAuthorBySlug(allPosts, Astro.params.author ?? "") ?? authorFromProps;
+const title = `${author.name} - Author`;
+const description = `${author.name}, ${author.role} at ${siteConfig.name}. ${author.description}`;
+const storyCountLabel = `${author.posts.length} ${
+  author.posts.length === 1 ? "published story" : "published stories"
+}`;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: author.name,
+  jobTitle: author.role,
+  description: author.description,
+  url: new URL(authorHref(author.name), siteConfig.siteUrl).toString(),
+};
+---
+
+<BaseLayout title={title} description={description} structuredData={structuredData}>
+  <SiteHeader posts={allPosts} />
+  <main id="content" class="min-h-screen">
+    <section class="mx-auto max-w-7xl px-6 pt-12 lg:px-10">
+      <div
+        class="grid gap-6 border-b border-border pb-8 md:grid-cols-[auto_minmax(0,1fr)] md:items-start"
+      >
+        <div
+          class="grid h-24 w-24 place-items-center overflow-hidden bg-primary font-display text-4xl font-bold text-primary-foreground md:h-32 md:w-32 md:text-5xl"
+          aria-hidden={!author.avatarUrl}
+        >
+          {
+            author.avatarUrl ? (
+              <img
+                src={author.avatarUrl}
+                alt={`${author.name} portrait`}
+                width="128"
+                height="128"
+                loading="eager"
+                class="h-full w-full object-cover"
+              />
+            ) : (
+              author.name.charAt(0)
+            )
+          }
+        </div>
+        <div>
+          <p class="eyebrow text-primary">Author</p>
+          <h1 class="mt-2 font-display text-5xl leading-[0.95] font-extrabold md:text-6xl">
+            {author.name}
+          </h1>
+          <p class="mt-2 font-medium text-primary">{author.role}</p>
+          <p class="mt-4 max-w-3xl text-pretty text-muted-foreground">{author.description}</p>
+          <p class="eyebrow mt-5 text-muted-foreground">
+            {storyCountLabel}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 pt-10 lg:px-10">
+      <div class="mb-6 flex items-end justify-between gap-4">
+        <h2 class="font-display text-2xl font-bold tracking-tight md:text-3xl">
+          Latest by {author.name}
+        </h2>
+        <a href="/authors/" class="story-link text-sm text-muted-foreground hover:text-foreground"
+          >All authors</a
+        >
+      </div>
+      <div class="grid-cards col-rules-3 grid gap-x-8 gap-y-10 md:grid-cols-3">
+        {author.posts.map((post, index) => <PostCard post={post} eager={index < 6} />)}
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
