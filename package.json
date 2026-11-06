@@ -1,0 +1,57 @@
+{
+  "name": "semnal-astro-news-theme",
+  "description": "A modern Astro news and magazine theme for technology, AI, startups, markets, EVs, and science.",
+  "type": "module",
+  "version": "1.2.1",
+  "author": "Andrei Alba",
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
+  "keywords": [
+    "astro-theme",
+    "astro",
+    "magazine",
+    "blog",
+    "news",
+    "technology",
+    "editorial",
+    "tailwindcss"
+  ],
+  "homepage": "https://semnal.xocoweb.workers.dev/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xocothemes/semnal.git"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro check",
+    "release:check": "npm run check && npm run build && npm run format:check",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "overrides": {
+    "yaml": "^2.8.3"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.3",
+    "@astrojs/sitemap": "^3.7.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.4.1",
+    "rehype-slug": "^6.0.0",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.3.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.11",
+    "@types/node": "^22.20.5",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.5"
+  }
+}

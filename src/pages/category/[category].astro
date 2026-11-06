@@ -1,0 +1,100 @@
+---
+import { getCollection } from "astro:content";
+import NewsletterSignup from "@/components/NewsletterSignup.astro";
+import PostCard from "@/components/PostCard.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import {
+  categories,
+  categoryDescriptions,
+  categoryFromSlug,
+  categorySlug,
+  getByCategory,
+  visiblePosts,
+  type Category,
+  type Post,
+} from "@/lib/posts";
+
+export async function getStaticPaths() {
+  const allPosts = visiblePosts(await getCollection("posts"));
+  return categories.map((category) => ({
+    params: { category: categorySlug(category) },
+    props: { category, allPosts },
+  }));
+}
+
+interface Props {
+  category: Category;
+  allPosts: Post[];
+}
+
+const { category, allPosts } = Astro.props;
+const categoryFromUrl = categoryFromSlug(Astro.params.category ?? "");
+const cat = categoryFromUrl ?? category;
+const posts = getByCategory(allPosts, cat);
+const [lead, ...rest] = posts;
+const sideRail = visiblePosts(allPosts)
+  .filter((post) => post.data.category !== cat)
+  .slice(0, 5);
+const countLabel = `${posts.length} ${posts.length === 1 ? "story" : "stories"}, newest first`;
+const title = `${cat} stories`;
+const description = `Latest ${cat} reporting, analysis, and briefings on ${siteConfig.name}.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <SiteHeader posts={allPosts} />
+  <main id="content" class="min-h-screen">
+    <section class="mx-auto max-w-7xl px-6 pt-12 lg:px-10">
+      <div class="opener rule-top border-b border-border pt-4 pb-7">
+        <div>
+          <p class="eyebrow text-primary">Category</p>
+          <h1 class="mt-2 font-display text-5xl leading-[0.95] font-extrabold md:text-6xl">
+            {cat}
+          </h1>
+          <p class="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
+            {categoryDescriptions[cat]}
+          </p>
+          <p class="eyebrow mt-4 text-muted-foreground">{countLabel}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 pt-10 lg:px-10">
+      <div class="grid gap-x-8 gap-y-12 lg:grid-cols-[1fr_340px]">
+        <div class="opener space-y-10">
+          {lead && <PostCard post={lead} variant="hero" eager />}
+          <div class="grid-cards col-rules-2 grid gap-x-8 gap-y-10 md:grid-cols-2">
+            {rest.map((post) => <PostCard post={post} />)}
+            {
+              rest.length === 0 && (
+                <p class="text-muted-foreground">More stories are coming soon.</p>
+              )
+            }
+          </div>
+        </div>
+        <aside class="lg:border-l lg:border-border lg:pl-8" aria-labelledby="across-site-heading">
+          <div class="article-rail sticky">
+            <div class="rule-top mb-1 flex items-baseline justify-between gap-4 pt-3">
+              <h2 id="across-site-heading" class="font-display text-xl font-extrabold">
+                Across the site
+              </h2>
+              <span class="eyebrow text-primary animate-pulse-dot">Live</span>
+            </div>
+            {
+              sideRail.map((post, index) => (
+                <PostCard post={post} variant="horizontal" eager={index < 5} />
+              ))
+            }
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-6 pt-24 lg:px-10">
+      <NewsletterSignup />
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>

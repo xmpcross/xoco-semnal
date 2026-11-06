@@ -1,0 +1,53 @@
+---
+import { siteConfig } from "@/config/site";
+
+interface Props {
+  variant?: "default" | "compact";
+}
+
+const { variant = "default" } = Astro.props;
+const newsletter = siteConfig.newsletter;
+const action = newsletter.action || undefined;
+const method = newsletter.method || "post";
+const emailFieldName = newsletter.emailFieldName || "email";
+const isCompact = variant === "compact";
+const fieldId = isCompact ? "newsletter-email-compact" : "newsletter-email";
+---
+
+<section
+  id={isCompact ? undefined : "newsletter"}
+  class="newsletter"
+  aria-labelledby={`${fieldId}-heading`}
+>
+  <div class:list={["mx-auto max-w-xl px-6 text-center", isCompact ? "py-10" : "py-14 sm:py-16"]}>
+    <h2
+      id={`${fieldId}-heading`}
+      class:list={[
+        "font-display leading-[1.08] font-extrabold text-balance",
+        isCompact ? "text-xl sm:text-2xl" : "text-2xl sm:text-[1.75rem]",
+      ]}
+    >
+      {newsletter.title}
+    </h2>
+    <p class="mt-3 text-pretty text-sm leading-6 text-muted-foreground">
+      {newsletter.description}
+    </p>
+
+    <form class="mt-7 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]" action={action} method={method}>
+      <label class="sr-only" for={fieldId}>Email address</label>
+      <input
+        id={fieldId}
+        required
+        type="email"
+        name={emailFieldName}
+        autocomplete="email"
+        placeholder="you@example.com"
+        class="newsletter-input"
+      />
+      <button type="submit" class="button-primary min-h-12 px-6 text-sm font-semibold">
+        {newsletter.buttonLabel}
+      </button>
+    </form>
+    <p class="mt-4 font-mono text-[11px] leading-5 text-muted-foreground">{newsletter.note}</p>
+  </div>
+</section>

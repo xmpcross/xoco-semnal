@@ -1,0 +1,85 @@
+---
+import { navigation, siteConfig } from "@/config/site";
+
+const safeSocials = siteConfig.socials.map((item) => ({
+  ...item,
+  href: item.label === "RSS" ? item.href : "https://example.com",
+}));
+---
+
+<footer class="newsroom-footer mt-28 bg-surface">
+  <div
+    class="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-10"
+  >
+    <div>
+      <a
+        href="/"
+        class="font-display text-3xl leading-none font-extrabold tracking-[-0.045em]"
+        aria-label={`${siteConfig.name} home`}
+      >
+        {siteConfig.name}
+      </a>
+      <p class="mt-5 max-w-sm text-sm leading-6 text-muted-foreground">{siteConfig.description}</p>
+      <div class="mt-6 flex flex-wrap gap-2 text-muted-foreground">
+        {
+          safeSocials.map((item) => (
+            <a
+              href={item.href}
+              class="icon-button h-10 w-10"
+              aria-label={item.label === "RSS" ? "RSS feed" : `${siteConfig.name} on ${item.label}`}
+              rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+            >
+              <span class="icon h-4 w-4" style={`--icon: url('${item.icon}')`} aria-hidden="true" />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <div>
+      <h2 class="eyebrow text-muted-foreground">Sections</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        {
+          navigation.map((item) => (
+            <li>
+              <a href={item.href} class="story-link">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="eyebrow text-muted-foreground">Publication</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <li><a href="/about/" class="story-link">About</a></li>
+        <li><a href="/contact/" class="story-link">Contact</a></li>
+        <li><a href="/contact/" class="story-link">Advertise</a></li>
+        <li><a href="/#newsletter" class="story-link">Newsletter</a></li>
+        <li><a href="/privacy/" class="story-link">Privacy</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="eyebrow text-muted-foreground">Resources</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <li><a href="/all-news/" class="story-link">All News</a></li>
+        <li><a href="/authors/" class="story-link">Authors</a></li>
+        <li><a href="/rss.xml" class="story-link">RSS</a></li>
+        <li><a href="/robots.txt" class="story-link">Robots</a></li>
+        <li><a href="/sitemap-index.xml" class="story-link">Sitemap</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-border">
+    <div
+      class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-muted-foreground sm:flex-row sm:px-6 lg:px-10"
+    >
+      <p>Copyright 2026 {siteConfig.name}.</p>
+      <p>Built with Astro for fast editorial publishing.</p>
+    </div>
+  </div>
+</footer>

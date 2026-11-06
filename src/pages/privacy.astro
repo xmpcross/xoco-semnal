@@ -1,0 +1,55 @@
+---
+import { getCollection } from "astro:content";
+import SiteFooter from "@/components/SiteFooter.astro";
+import SiteHeader from "@/components/SiteHeader.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/config/site";
+import { visiblePosts } from "@/lib/posts";
+
+const allPosts = visiblePosts(await getCollection("posts"));
+---
+
+<BaseLayout title="Privacy Policy" description={`Privacy policy for ${siteConfig.name}.`}>
+  <SiteHeader posts={allPosts} />
+  <main id="content" class="min-h-screen">
+    <section class="mx-auto max-w-4xl px-6 pt-12 lg:px-10">
+      <p class="eyebrow text-primary">Privacy</p>
+      <h1 class="mt-3 font-display text-5xl leading-[0.95] font-extrabold md:text-7xl">
+        Privacy Policy
+      </h1>
+      <p class="mt-6 max-w-2xl text-pretty text-xl text-muted-foreground">
+        This page explains the types of information a publication may collect, how that information
+        can be used, and how readers can get in touch about privacy requests.
+      </p>
+    </section>
+
+    <section class="mx-auto grid max-w-4xl gap-8 px-6 pt-14 text-muted-foreground lg:px-10">
+      <div>
+        <h2 class="font-display text-3xl font-bold text-foreground">Information You Collect</h2>
+        <p class="mt-4 leading-7">
+          The site may collect newsletter email addresses, contact messages, analytics events, and
+          advertising-related data when those features are enabled.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="font-display text-3xl font-bold text-foreground">How You Use It</h2>
+        <p class="mt-4 leading-7">
+          Collected data may be used for publishing, responding to inquiries, sending email,
+          measuring traffic, improving content, and complying with legal obligations.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="font-display text-3xl font-bold text-foreground">Contact</h2>
+        <p class="mt-4 leading-7">
+          For privacy requests, contact <a
+            class="story-link text-primary"
+            href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a
+          >.
+        </p>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
